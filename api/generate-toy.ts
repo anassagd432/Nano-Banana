@@ -71,12 +71,17 @@ export default async function handler(request: VercelRequest, response: VercelRe
             console.error("Failed to parse JSON from analysis step", e);
         }
 
-        // 2. Generate Image with Gemini 2.5 Flash Image
+        // 2. Generate Image with Gemini 2.5 Flash Image (Using Image Editing capabilities)
         console.log("Generating Image with prompt:", metadata.visualPrompt);
 
         const imageResult = await genAI.models.generateContent({
             model: "gemini-2.5-flash-image",
-            contents: metadata.visualPrompt,
+            contents: {
+                parts: [
+                    { text: metadata.visualPrompt },
+                    { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
+                ]
+            }
         });
 
         let finalImageBase64 = "";
