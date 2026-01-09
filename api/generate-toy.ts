@@ -1,10 +1,12 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+
+import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Unified SDK Instance
+const genAI = new GoogleGenAI({ key: process.env.GEMINI_API_KEY || '' });
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
     if (request.method !== 'POST') {
@@ -13,7 +15,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
     if (!process.env.GEMINI_API_KEY) {
         console.error("GEMINI_API_KEY is missing in environment variables");
-        return response.status(500).json({ error: "Configuration Error: GEMINI_API_KEY is missing. Please set it in your .env file." });
+        return response.status(500).json({ error: "Configuration Error: GEMINI_API_KEY is missing." });
     }
 
     try {
@@ -23,35 +25,86 @@ export default async function handler(request: VercelRequest, response: VercelRe
             return response.status(400).send('Missing image or theme');
         }
 
-        // 1. Generate Tagline with Gemini 1.5 Flash (Faster/Cheaper)
-        const textModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const textPrompt = `Write a short, witty, and nostalgic tagline and a cool character name for a 3D action figure based on the theme: "${theme}". 
-    The character is based on a real person. Keep it fun and retro. 
-    Return JSON format: { "name": "Character Name", "tagline": "The tagline here" }`;
+        // Parse Base64 Image (Remove data:image/...;base64, prefix if present)
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
 
-        const textResult = await textModel.generateContent(textPrompt);
-        const textResponse = textResult.response.text();
-        // Clean up markdown code blocks if present
-        const cleanJson = textResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        let characterInfo = { name: "Mystery Figure", tagline: "Collect them all!" };
-        try {
-            characterInfo = JSON.parse(cleanJson);
-        } catch (e) {
-            console.error("Failed to parse JSON from text model", e);
-        }
+        // 1. Analyze Image & Generate Metadata (Name, Tagline, Visual Description)
+        // Using "gemini-2.5-pro" as strictly requested for high-quality multimodal analysis
 
-        // MOCKING THE IMAGE GENERATION PART
-        // In a real Vercel function, timing out might be an issue for long generation, 
-        // but for now we follow the existing logic.
+        const textPrompt = `You are a creative toy designer.
+        1. Analyze this selfie image to understand the person's key features (hair, glasses, expression, etc.).
+        2. Create a fun, retro 3D action figure concept based on this person and the theme: "${theme}".
+        3. Generate a cool Character Name and a witty Tagline.
+        4. Write a short, vivid visual prompt to generate the actual toy image. This prompt should describe:
+           - A 3D action figure of this person (stylized but recognizable) inside plastic blister packaging.
+           - The packaging should be retro 90s style, colorful, with the theme "${theme}".
+           - High quality, 3D render, vibrant.
+        
+        Return STRICT JSON format: { "name": "...", "tagline": "...", "visualPrompt": "..." }`;
 
-        return response.status(200).json({
-            image: "https://images.unsplash.com/photo-1593341646782-e0b495cffd32?auto=format&fit=crop&q=80&w=1000", // Placeholder for execution
-            name: characterInfo.name,
-            tagline: characterInfo.tagline
+        // Using explicit parts structure for the new SDK
+        const textResult = await genAI.models.generateContent({
+            model: "gemini-2.5-pro",
+            contents: {
+                parts: [
+                    { text: textPrompt },
+                    { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
+                ]
+            }
         });
 
-    } catch (error) {
-        console.error("Error:", error);
-        return response.status(500).json({ error: "Failed to generate toy" });
+        const textResponse = textResult.text || "";
+        const cleanJson = textResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+
+        console.log("Analysis Result:", cleanJson);
+
+        let metadata = {
+            name: "Mystery Figure",
+            tagline: "Collect them all!",
+            visualPrompt: `A 3D action figure of a hero, theme ${theme}, blister packaging, retro style.`
+        };
+
+        try {
+            metadata = JSON.parse(cleanJson);
+        } catch (e) {
+            console.error("Failed to parse JSON from analysis step", e);
+        }
+
+        // 2. Generate Image with Gemini 2.5 Flash Image
+        console.log("Generating Image with prompt:", metadata.visualPrompt);
+
+        const imageResult = await genAI.models.generateContent({
+            model: "gemini-2.5-flash-image",
+            contents: metadata.visualPrompt,
+        });
+
+        let finalImageBase64 = "";
+
+        if (imageResult?.candidates?.[0]?.content?.parts) {
+            for (const part of imageResult.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    finalImageBase64 = part.inlineData.data;
+                    break;
+                }
+            }
+        }
+
+        if (!finalImageBase64) {
+            throw new Error("No image data returned from generator");
+        }
+
+        const finalDataUri = `data:image/png;base64,${finalImageBase64}`;
+
+        return response.status(200).json({
+            image: finalDataUri,
+            name: metadata.name,
+            tagline: metadata.tagline
+        });
+
+    } catch (error: any) {
+        console.error("Error generating toy:", error);
+        return response.status(500).json({
+            error: "Failed to generate toy. " + (error.message || "")
+        });
     }
 }
