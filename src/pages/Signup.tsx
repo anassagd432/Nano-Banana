@@ -4,14 +4,27 @@ import { store } from '../lib/store';
 import { Navbar } from '../components/Navbar';
 
 export function Signup() {
-    const [email, setEmail] = useState('');
-    const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
 
-    const location = useLocation();
-    const pendingToy = location.state?.pendingToy;
+    const isBusinessEmail = (email: string) => {
+        const publicDomains = [
+            'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com',
+            'aol.com', 'icloud.com', 'protonmail.com', 'zoho.com',
+            'mail.com', 'gmx.com', 'yandex.com'
+        ];
+        const domain = email.split('@')[1];
+        return domain && !publicDomains.includes(domain.toLowerCase());
+    };
 
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+
+        if (!isBusinessEmail(email)) {
+            setError("Access Restricted: Please use a valid work email address (e.g. name@company.com). Public domains like Gmail are not allowed.");
+            return;
+        }
+
         if (email) {
             store.login(email);
 
@@ -33,6 +46,11 @@ export function Signup() {
             <Navbar />
             <div className="max-w-md mx-auto mt-20 p-8 bg-white border-2 border-black shadow-retro-lg">
                 <h2 className="font-display text-3xl mb-6 text-center">JOIN THE SQUAD</h2>
+                {error && (
+                    <div className="bg-red-100 border-2 border-red-500 text-red-700 p-3 mb-4 text-sm font-bold">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSignup} className="space-y-4">
                     <div>
                         <label className="block font-bold mb-2">EMAIL ADDRESS</label>
