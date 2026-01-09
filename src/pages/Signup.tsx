@@ -4,6 +4,10 @@ import { store } from '../lib/store';
 import { Navbar } from '../components/Navbar';
 
 export function Signup() {
+    const [email, setEmail] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+    const pendingToy = location.state?.pendingToy;
     const [error, setError] = useState<string | null>(null);
 
     const isBusinessEmail = (email: string) => {
@@ -15,6 +19,8 @@ export function Signup() {
         const domain = email.split('@')[1];
         return domain && !publicDomains.includes(domain.toLowerCase());
     };
+
+    const pendingGeneration = location.state?.pendingGeneration;
 
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,9 +41,13 @@ export function Signup() {
                     image: pendingToy.image,
                     theme: 'Custom'
                 });
+                navigate('/gallery');
+            } else if (pendingGeneration) {
+                // Return to home to trigger generation
+                navigate('/', { state: { pendingGeneration } });
+            } else {
+                navigate('/');
             }
-
-            navigate(pendingToy ? '/gallery' : '/');
         }
     };
 
