@@ -1,4 +1,4 @@
-import { Download, Share2, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw } from 'lucide-react';
 import { ThreeDTiltCard } from './ThreeDTiltCard';
 
 interface ResultCardProps {
@@ -72,9 +72,7 @@ export function ResultCard({ image, tagline, characterName, onReset }: ResultCar
                         <button onClick={handleDownload} className="w-full py-3 bg-nano-cyan border-2 border-black font-bold shadow-retro hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-2">
                             <Download className="w-5 h-5" /> DOWNLOAD BOX ART
                         </button>
-                        <button className="w-full py-3 bg-white border-2 border-black font-bold shadow-retro hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-2">
-                            <Share2 className="w-5 h-5" /> SHARE ON SOCIALS
-                        </button>
+
                         <button onClick={onReset} className="mt-4 underline text-gray-500 hover:text-black flex items-center justify-center gap-2">
                             <RefreshCw className="w-4 h-4" /> MAKE ANOTHER
                         </button>
