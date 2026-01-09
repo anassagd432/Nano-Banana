@@ -9,6 +9,15 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ image, tagline, characterName, onReset }: ResultCardProps) {
+    const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `${characterName.replace(/\s+/g, '_')}_toy.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="max-w-4xl mx-auto p-4 md:p-8" style={{ perspective: "1000px" }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -45,7 +54,7 @@ export function ResultCard({ image, tagline, characterName, onReset }: ResultCar
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <button className="w-full py-3 bg-nano-cyan border-2 border-black font-bold shadow-retro hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-2">
+                        <button onClick={handleDownload} className="w-full py-3 bg-nano-cyan border-2 border-black font-bold shadow-retro hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-2">
                             <Download className="w-5 h-5" /> DOWNLOAD BOX ART
                         </button>
                         <button className="w-full py-3 bg-white border-2 border-black font-bold shadow-retro hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-2">
