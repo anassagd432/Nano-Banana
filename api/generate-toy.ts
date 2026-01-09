@@ -8,10 +8,34 @@ dotenv.config();
 // Unified SDK Instance
 const genAI = new GoogleGenAI({ key: process.env.GEMINI_API_KEY || '' });
 
+// Simple in-memory rate limiter (Note: Vercel functions are stateless, but this helps with warm instances)
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 5;
+const requestLog: Record<string, number[]> = {};
+
 export default async function handler(request: VercelRequest, response: VercelResponse) {
     if (request.method !== 'POST') {
         return response.status(405).send('Method Not Allowed');
     }
+
+    // Rate Limiting Logic
+    const ip = (request.headers['x-forwarded-for'] as string) || request.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+
+    if (!requestLog[ip]) {
+        requestLog[ip] = [];
+    }
+
+    // Filter out old requests
+    requestLog[ip] = requestLog[ip].filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+
+    if (requestLog[ip].length >= MAX_REQUESTS) {
+        console.warn(`Rate limit exceeded for IP: ${ip}`);
+        return response.status(429).json({ error: "Too many requests. Please try again in a minute." });
+    }
+
+    // Add current request
+    requestLog[ip].push(now);
 
     if (!process.env.GEMINI_API_KEY) {
         console.error("GEMINI_API_KEY is missing in environment variables");
