@@ -1,73 +1,78 @@
-# React + TypeScript + Vite
+# Nano Banana 🍌🤖
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Nano Banana** is an AI-powered toy generator that turns your selfies into collectible 3D action figures.
 
-Currently, two official plugins are available:
+Built with **Vite**, **React**, and **Google Gemini 2.5** (via the new `@google/genai` SDK), it creates personalized, high-quality toy concepts in seconds.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **Personalized Action Figures**: Upload a selfie, and our AI analyzes your features to create a custom toy that *actually looks like you*.
+- **Retro Packaging**: Every toy comes in a generated 90s-style blister pack with a unique theme (e.g., Space Explorer, Rock Star).
+- **Dual-Model Architecture**:
+  - **Gemini 2.5 Pro**: Analyzes facial features and generates witty character metadata (Name, Tagline).
+  - **Gemini 2.5 Flash Image**: Generates the final high-fidelity 3D image using text-to-image + image-to-image editing for maximum likeness.
+- **My Collection**: Save your favorite creations to a local gallery.
+- **Rate Limiting**: Protected against API abuse with intelligent IP-based rate limiting.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
+- **Backend**: Vercel Serverless Functions (`api/`)
+- **AI**: Google `@google/genai` SDK
+  - Model 1: `gemini-2.5-pro` (Multimodal Analysis)
+  - Model 2: `gemini-2.5-flash-image` (Image Generation/Editing)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js (v18+)
+- A [Google Gemini API Key](https://aistudio.google.com/)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/anassagd432/Nano-Banana.git
+    cd Nano-Banana
+    ```
+
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+
+3.  Configure Environment Variables:
+    Create a `.env` file in the root directory:
+    ```env
+    gemini_api_key=YOUR_GOOGLE_API_KEY
+    ```
+
+4.  Start the Development Server:
+    ```bash
+    npm run dev
+    ```
+
+### Running the API (Local)
+
+To test the backend functions locally, use Vercel CLI:
+```bash
+npm i -g vercel
+vercel dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔒 API Usage & Limits
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The API is rate-limited to **5 requests per minute** per IP address to ensure fair usage and prevent quota exhaustion.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🤝 Contributing
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+*Nano Banana is a demo application showcasing the power of multimodal AI.*
