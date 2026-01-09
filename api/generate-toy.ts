@@ -32,13 +32,14 @@ export default async function handler(request: VercelRequest, response: VercelRe
         // Using "gemini-2.5-pro" as strictly requested for high-quality multimodal analysis
 
         const textPrompt = `You are a creative toy designer.
-        1. Analyze this selfie image to understand the person's key features (hair, glasses, expression, etc.).
-        2. Create a fun, retro 3D action figure concept based on this person and the theme: "${theme}".
+        1. Analyze this selfie image to understand the person's key facial features (hair style/color, facial structure, glasses, expression, beard, etc.) VERY CLOSELY.
+        2. Create a fun, retro 3D action figure concept that LOOKS EXACTLY LIKE THE PERSON in the photo, but in a toy style. Use the theme: "${theme}".
         3. Generate a cool Character Name and a witty Tagline.
         4. Write a short, vivid visual prompt to generate the actual toy image. This prompt should describe:
-           - A 3D action figure of this person (stylized but recognizable) inside plastic blister packaging.
+           - A 3D action figure of [Person's Description] inside plastic blister packaging.
+           - CRITICAL: The face MUST resemble the person in the cropped image. Mention specific features (e.g. "figure has distinct curly brown hair and glasses just like the subject").
            - The packaging should be retro 90s style, colorful, with the theme "${theme}".
-           - High quality, 3D render, vibrant.
+           - High quality, 3D render, vibrant, plastic texture.
         
         Return STRICT JSON format: { "name": "...", "tagline": "...", "visualPrompt": "..." }`;
 

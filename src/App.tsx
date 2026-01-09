@@ -64,14 +64,17 @@ function Home() {
 
   const handleSave = () => {
     if (result) {
-      // Build toy object (using theme as 'Custom' or passing it through state if we wanted to be precise)
-      // Ideally we pass theme from handleGenerate scope to state.
-      // For simplicity:
+      if (!store.getUser()) {
+        // Redirect to signup seamlessly, passing the result to save later
+        navigate('/signup', { state: { pendingToy: result } });
+        return;
+      }
+
       store.saveToy({
         name: result.name,
         tagline: result.tagline,
         image: result.image,
-        theme: 'Custom'
+        theme: 'Custom' // Or derive from UI if we tracked it better
       });
       alert("Toy saved to collection!");
       navigate('/gallery');

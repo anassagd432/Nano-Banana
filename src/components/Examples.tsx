@@ -1,9 +1,9 @@
 import { ThreeDTiltCard } from './ThreeDTiltCard';
 
 const examples = [
-    { theme: '90s Rock Star', color: 'bg-nano-pink', img: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=60' }, // Placeholder users
-    { theme: 'Space Explorer', color: 'bg-nano-cyan', img: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=400&auto=format&fit=crop&q=60' },
-    { theme: 'Retro Superhero', color: 'bg-nano-yellow', img: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&auto=format&fit=crop&q=60' },
+    { theme: '90s Rock Star', color: 'bg-nano-pink', img: 'https://images.unsplash.com/photo-1515002246390-7bf7e8f534c5?w=400&auto=format&fit=crop&q=60' }, // Robot Rocker?
+    { theme: 'Space Explorer', color: 'bg-nano-cyan', img: 'https://images.unsplash.com/photo-1560167098-90761e3860bb?w=400&auto=format&fit=crop&q=60' }, // Astronaut figure
+    { theme: 'Retro Superhero', color: 'bg-nano-yellow', img: 'https://images.unsplash.com/photo-1620553755209-408170cacaa7?w=400&auto=format&fit=crop&q=60' }, // Action figure
 ];
 
 export function Examples() {

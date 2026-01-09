@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { store } from '../lib/store';
 import { Navbar } from '../components/Navbar'; // Assuming we refactor/export properly
 
@@ -7,11 +7,23 @@ export function Login() {
     const [email, setEmail] = useState('');
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const pendingToy = location.state?.pendingToy;
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         if (email) {
             store.login(email);
-            navigate('/'); // Go home or to gallery
+
+            if (pendingToy) {
+                store.saveToy({
+                    name: pendingToy.name,
+                    tagline: pendingToy.tagline,
+                    image: pendingToy.image,
+                    theme: 'Custom'
+                });
+            }
+            navigate(pendingToy ? '/gallery' : '/');
         }
     };
 
