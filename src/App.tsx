@@ -5,16 +5,20 @@ import { Hero } from './components/Hero';
 import { Examples } from './components/Examples';
 import { UploadForm } from './components/UploadForm';
 import { ResultCard } from './components/ResultCard';
+import { ApiKeyModal, getSavedApiKey } from './components/ApiKeyModal';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Gallery } from './pages/Gallery';
 import { store } from './lib/store';
+import { generateToy } from './lib/generateToy';
 
 // Wrapper for the Landing/Home interaction logic
 function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [result, setResult] = useState<{ image: string, name: string, tagline: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [pendingGeneration, setPendingGeneration] = useState<{ image: string, theme: string } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,67 +28,71 @@ function Home() {
     if (pendingGen && store.getUser()) {
       // Clear state to avoid loops, then trigger generation
       window.history.replaceState({}, document.title);
-      triggerApi(pendingGen.image, pendingGen.theme);
+      handleGenerateWithKey(pendingGen.image, pendingGen.theme);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
-  const triggerApi = async (base64Image: string, theme: string) => {
+  const handleGenerateWithKey = (base64Image: string, theme: string) => {
+    const savedKey = getSavedApiKey();
+    if (savedKey) {
+      // Have a saved key, proceed directly
+      triggerGeneration(savedKey, base64Image, theme);
+    } else {
+      // Need to ask for API key
+      setPendingGeneration({ image: base64Image, theme });
+      setShowApiKeyModal(true);
+    }
+  };
+
+  const triggerGeneration = async (apiKey: string, base64Image: string, theme: string) => {
     setLoading(true);
-    setShowUpload(true); // Ensure loader is visible
+    setShowUpload(true);
+    setShowApiKeyModal(false);
+
     try {
-      const response = await fetch('/api/generate-toy', {
-        method: 'POST',
-        body: JSON.stringify({ image: base64Image, theme }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Generation failed');
-      }
-
-      const data = await response.json();
+      const toyResult = await generateToy(apiKey, base64Image, theme);
       setResult({
-        image: data.image,
-        name: data.name,
-        tagline: data.tagline
+        image: toyResult.image,
+        name: toyResult.name,
+        tagline: toyResult.tagline
       });
-    } catch (error: any) {
-      console.error("API Call failed", error);
-      alert(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      console.error("Generation failed:", error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+
+      // Check if it's an API key error
+      if (message.includes('API key') || message.includes('401') || message.includes('403')) {
+        alert('Invalid API key. Please check your key and try again.');
+        setShowApiKeyModal(true);
+      } else {
+        alert(`Error: ${message}`);
+      }
       setShowUpload(false);
     } finally {
       setLoading(false);
+      setPendingGeneration(null);
+    }
+  };
+
+  const handleApiKeySubmit = (apiKey: string) => {
+    if (pendingGeneration) {
+      triggerGeneration(apiKey, pendingGeneration.image, pendingGeneration.theme);
     }
   };
 
   const handleGenerate = async (file: File, theme: string) => {
-    // SECURITY CHECK: Convert file to base64 first to potentially save state
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       const base64Image = reader.result as string;
-
-      // User must be logged in to generate (Prevents API abuse)
-      if (!store.getUser()) {
-        // Redirect to Signup passing the pending generation data
-        navigate('/signup', {
-          state: {
-            pendingGeneration: { image: base64Image, theme }
-          }
-        });
-        return;
-      }
-
-      // If logged in, proceed to API
-      triggerApi(base64Image, theme);
+      handleGenerateWithKey(base64Image, theme);
     };
   };
 
   const handleSave = () => {
     if (result) {
       if (!store.getUser()) {
-        // Redirect to signup seamlessly, passing the result to save later
         navigate('/signup', { state: { pendingToy: result } });
         return;
       }
@@ -93,7 +101,7 @@ function Home() {
         name: result.name,
         tagline: result.tagline,
         image: result.image,
-        theme: 'Custom' // Or derive from UI if we tracked it better
+        theme: 'Custom'
       });
       alert("Toy saved to collection!");
       navigate('/gallery');
@@ -103,6 +111,16 @@ function Home() {
   return (
     <div className="min-h-screen bg-yellow-50 selection:bg-nano-pink selection:text-white pb-20">
       <Navbar />
+
+      {/* API Key Modal */}
+      <ApiKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => {
+          setShowApiKeyModal(false);
+          setPendingGeneration(null);
+        }}
+        onSubmit={handleApiKeySubmit}
+      />
 
       {!showUpload && !result ? (
         <>

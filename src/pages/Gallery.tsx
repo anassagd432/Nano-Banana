@@ -9,6 +9,7 @@ export function Gallery() {
 
     useEffect(() => {
         setToys(store.getToys());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

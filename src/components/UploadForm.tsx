@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Zap } from 'lucide-react';
 import clsx from 'clsx';
-// import { motion } from 'framer-motion';
 
 const themes = [
     { id: '90s-toy', label: '90s Toy', icon: '🎸', color: 'bg-pink-500' },
