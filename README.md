@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-4285F4?logo=google)](https://ai.google.dev/)
 
-[Demo](#demo) • [Features](#-features) • [Quick Start](#-quick-start) • [How It Works](#-how-it-works) • [Contributing](#-contributing)
+[Live Demo](https://nano-banana-smoky.vercel.app/) • [Features](#-features) • [Quick Start](#-quick-start) • [How It Works](#-how-it-works) • [Contributing](#-contributing)
 
 </div>
 
@@ -26,7 +26,9 @@ Nano Banana is an AI-powered toy generator that turns your selfies into **person
 - **No data collection** — Images are processed locally, nothing is stored
 - **Download or lose it** — If you don't download, it's gone forever
 
-### 🎬 Demo
+### 🎬 Live Demo
+
+**[👉 Try it now at nano-banana-smoky.vercel.app](https://nano-banana-smoky.vercel.app/)**
 
 > *Upload a selfie → Enter your API key → Pick a theme → Get your custom action figure in seconds!*
 
@@ -59,7 +61,7 @@ Nano Banana is an AI-powered toy generator that turns your selfies into **person
 
 ### Using the Live App
 
-1. Visit the live demo (link coming soon)
+1. Visit the **[Live Demo](https://nano-banana-smoky.vercel.app/)**
 2. Click "Make My Toy"
 3. Enter your [FREE Gemini API key](https://aistudio.google.com/api-keys)
 4. Upload a selfie and pick a theme
